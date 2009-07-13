@@ -50,7 +50,7 @@ module ActiveDirectoryAuth
     end
     
     def map_roles(roles)
-      @roles_mapping.each_with_object(Set.new) do |pair, memo|
+      @roles_mapping && @roles_mapping.each_with_object(Set.new) do |pair, memo|
         pretty_name, ldap_name = pair
         if roles.include?(ldap_name)|| roles.include?([ldap_name, @base_dn].join(','))
           memo << pretty_name
