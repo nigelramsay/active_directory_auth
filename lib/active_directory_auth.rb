@@ -11,7 +11,7 @@ module ActiveDirectoryAuth
     def initialize(clazz)
       @clazz = clazz
       @host = "localhost"
-      @fetched_attributes = ['dn','sAMAccountName','displayname','SN','givenName', 'memberOf']
+      @fetched_attributes = ['dn','sAMAccountName','displayname','SN','givenName', 'memberOf', 'mail']
     end
     
     def roles(mapping)
