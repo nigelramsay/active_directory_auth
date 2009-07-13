@@ -34,7 +34,16 @@ module ActiveDirectoryAuth
         ad_user = results.first
         Rails.logger.info "Successfully bound as #{username.inspect}"
         Rails.logger.info "Found #{ad_user.inspect}"
-        @clazz.find_from_ldap(LdapUser.new(ad_user.samaccountname.first, map_roles(ad_user.memberOf)))
+
+        ldap_user = LdapUser.new
+        ldap_user.username = ad_user.samaccountname.first rescue nil
+        ldap_user.first_name = ad_user.givenname.first rescue nil
+        ldap_user.last_name = ad_user.sn.first rescue nil
+        ldap_user.display_name = ad_user.displayname.first rescue nil
+        ldap_user.email = ad_user.mail.first rescue nil
+        ldap_user.roles = map_roles(ad_user.memberOf)
+
+        @clazz.find_from_ldap(ldap_user)
       else
         Rails.logger.info "Failed to bind as #{username.inspect} Error: #{ldap.get_operation_result.inspect}"
         nil
@@ -79,11 +88,7 @@ module ActiveDirectoryAuth
   end
   
   class LdapUser
-    attr_reader :username, :roles
-
-    def initialize(username, roles)
-      @username, @roles = username, roles
-    end
+    attr_accessor :username, :first_name, :last_name, :display_name, :email, :roles
 
     def method_missing(name, *args)
       name_s = name.to_s
@@ -99,7 +104,8 @@ module ActiveDirectoryAuth
     attr_reader :password
 
     def initialize(username, password, roles)
-      super(username, roles)
+      self.username = username
+      self.roles = roles
       @password = password
     end
   end
